@@ -4,9 +4,10 @@ import (
 	"net/netip"
 	"slices"
 
-	"github.com/sagernet/sing-box/adapter"
-	C "github.com/sagernet/sing-box/constant"
-	"github.com/sagernet/sing-box/service/powerreport"
+	"github.com/CyberVacation/rostra/adapter"
+	C "github.com/CyberVacation/rostra/constant"
+	"github.com/CyberVacation/rostra/service/powerreport"
+
 	tun "github.com/sagernet/sing-tun"
 	"github.com/sagernet/sing-tun/dnsinfo"
 	"github.com/sagernet/sing/common"
