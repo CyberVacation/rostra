@@ -214,4 +214,4 @@ require (
 	zombiezen.com/go/capnproto2 v2.18.2+incompatible // indirect
 )
 
-replace github.com/metacubex/utls => github.com/CyberVacation/utls v1.8.8
+replace github.com/metacubex/utls => github.com/CyberVacation/utls v1.8.9-0.20261006054945-e9fad79bd05e

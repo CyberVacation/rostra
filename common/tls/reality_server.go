@@ -3,6 +3,7 @@
 package tls
 
 import (
+	"bytes"
 	"context"
 	"crypto/tls"
 	"encoding/base64"
@@ -21,6 +22,7 @@ import (
 	N "github.com/sagernet/sing/common/network"
 	"github.com/sagernet/sing/common/ntp"
 
+	"github.com/cloudflare/circl/sign/mldsa/mldsa65"
 	utls "github.com/metacubex/utls"
 )
 
@@ -102,6 +104,17 @@ func NewRealityServer(ctx context.Context, logger log.ContextLogger, options opt
 		return nil, E.New("invalid private key")
 	}
 	tlsConfig.PrivateKey = privateKey
+	if options.Reality.MLDSA65Seed != "" {
+		seed, err := base64.RawURLEncoding.DecodeString(options.Reality.MLDSA65Seed)
+		if err != nil || len(seed) != mldsa65.SeedSize {
+			return nil, E.New("invalid mldsa65_seed: expected 32 bytes in unpadded base64url")
+		}
+		if bytes.Equal(seed, privateKey) {
+			return nil, E.New("mldsa65_seed must differ from private_key")
+		}
+		_, signingKey := mldsa65.NewKeyFromSeed((*[mldsa65.SeedSize]byte)(seed))
+		tlsConfig.Mldsa65Key = signingKey.Bytes()
+	}
 	tlsConfig.MaxTimeDiff = time.Duration(options.Reality.MaxTimeDifference)
 
 	tlsConfig.ShortIds = make(map[[8]byte]bool)

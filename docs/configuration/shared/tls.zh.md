@@ -104,6 +104,7 @@ icon: material/new-box
       ... // 拨号字段
     },
     "private_key": "UuMBgl7MXTPx9inmQp2UC7Jcnwc6XYbwDNebonM-FCc",
+    "mldsa65_seed": "",
     "short_id": [
       "0123456789abcdef"
     ],
@@ -159,6 +160,7 @@ icon: material/new-box
   "reality": {
     "enabled": false,
     "public_key": "jNXHt1yRo0vDuchQlIP6Z0ZvjT3KtzVI-T4E7RoLJS0",
+    "mldsa65_verify": "",
     "short_id": "0123456789abcdef"
   }
 }
@@ -815,6 +817,30 @@ ACME DNS01 验证字段。如果配置，将禁用其他验证方法。
 ==必填==
 
 公钥，由 `rostra generate reality-keypair` 生成。
+
+#### mldsa65_seed
+
+==仅服务端==
+
+可选的 ML-DSA-65 签名种子，为使用无填充 base64url 编码的 32 字节数据。
+使用 `rostra generate reality-mldsa65-keypair` 生成独立的种子和验证公钥。
+种子必须与 `private_key` 不同，并且必须保密。
+
+启用后将增加与 Xray 兼容的后量子服务端认证。额外签名占用 3309 字节，
+握手目标的证书数据必须有足够空间容纳它。
+未配置 `mldsa65_verify` 的客户端仍可使用原有 REALITY 认证。留空时禁用。
+
+#### mldsa65_verify
+
+==仅客户端==
+
+可选的 ML-DSA-65 验证公钥，为使用无填充 base64url 编码的 1952 字节数据。
+使用服务端运行 `rostra generate reality-mldsa65-keypair` 时输出的 `Verify` 值。
+配置后，REALITY 连接必须提供绑定证书、ClientHello 和 ServerHello 的有效签名。
+缺少签名或签名无效时拒绝连接。留空时禁用。
+
+这些字段分别对应 Xray 的 `mldsa65Seed` 和 `mldsa65Verify`。
+它们补充 REALITY 认证；TLS 密钥交换仍由选中的密钥共享组决定。
 
 #### short_id
 
