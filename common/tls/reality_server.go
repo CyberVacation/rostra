@@ -29,7 +29,9 @@ import (
 var _ ServerConfigCompat = (*RealityServerConfig)(nil)
 
 type RealityServerConfig struct {
+	ctx              context.Context
 	config           *utls.RealityConfig
+	recordCache      *realityRecordCache
 	handshakeTimeout time.Duration
 }
 
@@ -151,12 +153,17 @@ func NewRealityServer(ctx context.Context, logger log.ContextLogger, options opt
 	} else {
 		handshakeTimeout = C.TCPTimeout
 	}
+	recordCache := newRealityRecordCache(ctx, &tlsConfig)
+	tlsConfig.GetPostHandshakeRecordLengths = recordCache.get
 	var config ServerConfig = &RealityServerConfig{
+		ctx:              ctx,
 		config:           &tlsConfig,
+		recordCache:      recordCache,
 		handshakeTimeout: handshakeTimeout,
 	}
 	if options.KernelTx || options.KernelRx {
 		if !C.IsLinux {
+			recordCache.cancel()
 			return nil, E.New("kTLS is only supported on Linux")
 		}
 		config = &KTlSServerConfig{
@@ -203,10 +210,14 @@ func (c *RealityServerConfig) Client(conn net.Conn) (Conn, error) {
 }
 
 func (c *RealityServerConfig) Start() error {
+	for serverName := range c.config.ServerNames {
+		c.recordCache.warm(serverName)
+	}
 	return nil
 }
 
 func (c *RealityServerConfig) Close() error {
+	c.recordCache.cancel()
 	return nil
 }
 
@@ -253,8 +264,13 @@ func realityCloseOnCancel(ctx context.Context, conn net.Conn) func() {
 }
 
 func (c *RealityServerConfig) Clone() Config {
+	config := c.config.Clone()
+	recordCache := newRealityRecordCache(c.ctx, config)
+	config.GetPostHandshakeRecordLengths = recordCache.get
 	return &RealityServerConfig{
-		config:           c.config.Clone(),
+		ctx:              c.ctx,
+		config:           config,
+		recordCache:      recordCache,
 		handshakeTimeout: c.handshakeTimeout,
 	}
 }

@@ -8,8 +8,8 @@ github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1/go.mod h1:xomTg6
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/CyberVacation/utls v1.8.8 h1:qkGL6YCeOjN+NBMvID88a22abNr8OC4mqcH1iINshoQ=
 github.com/CyberVacation/utls v1.8.8/go.mod h1:kncGGVhFaoGn5M3pFe3SXhZCzsbCJayNOH4UEqTKTko=
-github.com/CyberVacation/utls v1.8.9-0.20261006054945-e9fad79bd05e h1:oQpue24gMFBSGj/K/yZ589E1RDyqX1N62zPQZGpupG8=
-github.com/CyberVacation/utls v1.8.9-0.20261006054945-e9fad79bd05e/go.mod h1:mz0njwjCfWMWIJSraDIBUcJs6DFXWq2Ss/lCG0scjDs=
+github.com/CyberVacation/utls v1.8.9-0.20261006130402-9ed601a2b08f h1:Ul3Jiu7pZ6aNoTiEoHnAaCkynFDUxmQtXg3E7huI4/s=
+github.com/CyberVacation/utls v1.8.9-0.20261006130402-9ed601a2b08f/go.mod h1:mz0njwjCfWMWIJSraDIBUcJs6DFXWq2Ss/lCG0scjDs=
 github.com/Microsoft/go-winio v0.6.1 h1:9/kr64B9VUZrLm5YYwbGtUJnMgqWVOdUAXu6Migciow=
 github.com/Microsoft/go-winio v0.6.1/go.mod h1:LRdKpFKfdobln8UmuiYcKPot9D2v6svN5+sAH+4kjUM=
 github.com/RyuaNerin/go-krypto v1.3.0 h1:smavTzSMAx8iuVlGb4pEwl9MD2qicqMzuXR2QWp2/Pg=

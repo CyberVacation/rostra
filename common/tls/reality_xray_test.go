@@ -112,7 +112,8 @@ func TestRealityMLDSA65Xray(t *testing.T) {
 				require.Equal(t, append([]byte{0, 0}, []byte("hello")...), response)
 			})
 			t.Run("xray-to-rostra", func(t *testing.T) {
-				server := realityTestServerConfig(t, target, seed)
+				ctx, recordTarget := realityRecordTarget(t, curve)
+				server := realityTestServerConfigContext(t, ctx, recordTarget, seed)
 				listener := realityTestListener(t, func(conn net.Conn) {
 					tlsConn, err := ServerHandshake(context.Background(), conn, server)
 					if err != nil {
@@ -172,6 +173,7 @@ func TestRealityMLDSA65Xray(t *testing.T) {
 				_, err = io.ReadFull(conn, payload)
 				require.NoError(t, err)
 				require.Equal(t, "hello", string(payload))
+				require.Equal(t, []int{53, 117}, server.(*RealityServerConfig).recordCache.get(ctx, "example.com", []string{"h2", "http/1.1"}))
 			})
 		})
 	}

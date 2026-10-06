@@ -811,6 +811,19 @@ See [DNS01 Challenge Fields](/configuration/shared/dns01_challenge/) for details
 
 Handshake server address and [Dial Fields](/configuration/shared/dial/).
 
+The server also probes this target using the configured dialer to sample TLS 1.3
+record sizes after the handshake, then sends matching padded records on
+authenticated REALITY connections. Probes use normal certificate verification and
+the configured certificate store, with separate samples for no ALPN, HTTP/1.1,
+and HTTP/2. Three probes are started when the server starts.
+
+Samples are cached for one hour and refreshed on demand. Each probe takes at most
+10 seconds, including up to 5 seconds of observation after its handshake. A
+connection awaiting a new sample can wait for the probe within its handshake
+timeout. Failed probes are retried on demand after one minute; while no valid
+sample is available, the connection proceeds without these additional records.
+This matches record sizes, not session resumption or application behavior.
+
 #### private_key
 
 ==Server only==

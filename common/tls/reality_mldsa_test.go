@@ -148,7 +148,7 @@ func realityTestListener(t *testing.T, handler func(net.Conn)) net.Listener {
 	return listener
 }
 
-func realityTestTarget(t *testing.T, curve stdtls.CurveID) net.Listener {
+func realityTestTargetTLSConfig(t *testing.T, curve stdtls.CurveID) *stdtls.Config {
 	t.Helper()
 	certificate := newPinnedTestCertificate(t, "example.com").Certificate
 	template := *certificate.Leaf
@@ -157,13 +157,19 @@ func realityTestTarget(t *testing.T, curve stdtls.CurveID) net.Listener {
 	der, err := x509.CreateCertificate(rand.Reader, &template, &template, certificate.Leaf.PublicKey, certificate.PrivateKey)
 	require.NoError(t, err)
 	certificate.Certificate = [][]byte{der}
+	return &stdtls.Config{
+		Certificates:     []stdtls.Certificate{certificate},
+		MinVersion:       stdtls.VersionTLS13,
+		CurvePreferences: []stdtls.CurveID{curve},
+		NextProtos:       []string{"h2", "http/1.1"},
+	}
+}
+
+func realityTestTarget(t *testing.T, curve stdtls.CurveID) net.Listener {
+	t.Helper()
+	config := realityTestTargetTLSConfig(t, curve)
 	return realityTestListener(t, func(conn net.Conn) {
-		tlsConn := stdtls.Server(conn, &stdtls.Config{
-			Certificates:     []stdtls.Certificate{certificate},
-			MinVersion:       stdtls.VersionTLS13,
-			CurvePreferences: []stdtls.CurveID{curve},
-			NextProtos:       []string{"h2", "http/1.1"},
-		})
+		tlsConn := stdtls.Server(conn, config)
 		defer tlsConn.Close()
 		tlsConn.Handshake()
 	})
@@ -171,8 +177,13 @@ func realityTestTarget(t *testing.T, curve stdtls.CurveID) net.Listener {
 
 func realityTestServerConfig(t *testing.T, target net.Listener, seed string) ServerConfig {
 	t.Helper()
+	return realityTestServerConfigContext(t, context.Background(), target, seed)
+}
+
+func realityTestServerConfigContext(t *testing.T, ctx context.Context, target net.Listener, seed string) ServerConfig {
+	t.Helper()
 	address := M.ParseSocksaddr(target.Addr().String())
-	config, err := NewRealityServer(context.Background(), nil, option.InboundTLSOptions{
+	config, err := NewRealityServer(ctx, nil, option.InboundTLSOptions{
 		ServerName: "example.com",
 		Reality: &option.InboundRealityOptions{
 			PrivateKey:  realityTestPrivateKey,
